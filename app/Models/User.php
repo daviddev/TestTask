@@ -2,12 +2,24 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property int $id
+ * @property string $username
+ * @property string $phone_number
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property-read Collection<Link> $links
+ * @property-read Collection<Link> $manual_links
+ * @property-read Collection<UserScore> $scores
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -18,27 +30,31 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'username',
+        'phone_number',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
+     * @return HasMany
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    public function links(): HasMany
+    {
+        return $this->hasMany(Link::class);
+    }
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * @return HasMany
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public function manual_links(): HasMany
+    {
+        return $this->links()->where('is_manual', true);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function scores(): HasMany
+    {
+        return $this->hasMany(UserScore::class);
+    }
 }

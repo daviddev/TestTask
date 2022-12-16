@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\ScoreController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\LinkController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +16,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', [UserController::class, 'create']);
+Route::post('/', [UserController::class, 'store']);
+Route::view('/error', 'error')->name('error');
+
+Route::middleware('check-link')->prefix('game')->group(function () {
+    Route::get('/{key}', [LinkController::class, 'show'])->name('links.show');
+    Route::post('/{key}/link', [LinkController::class, 'store']);
+    Route::post('/{key}/link/{link}/deactivate', [LinkController::class, 'deactivateLink']);
+    Route::post('/{key}/score', [ScoreController::class, 'store']);
+    Route::get('/{key}/score', [ScoreController::class, 'index']);
 });
